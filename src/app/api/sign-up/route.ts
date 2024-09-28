@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "@/Models/userModel";
+import { SendEmail } from "@/Helper/SendMail";
 export const POST = async (request: NextRequest) => {
   try {
     await connectDb();
@@ -11,7 +12,7 @@ export const POST = async (request: NextRequest) => {
     const { name, email, password } = userInfo;
     const user = await User.findOne({ email });
     console.log("from line 13", user);
-    
+
     if (user) {
       return NextResponse.json({ message: "User already exists", status: 400 });
     }
@@ -19,10 +20,15 @@ export const POST = async (request: NextRequest) => {
     const newUser = new User({ name, email, password: hashedPassword });
 
     await newUser.save();
-    const user_1 = await User.findOne({ email });
-    console.log("from line 22", user_1);
+    const sendEmail = await SendEmail(email, "verify-email");
+    if (sendEmail === "Email sent successfully") {
+      return NextResponse.json({
+        message: "User created successfully",
+        status: 200,
+      });
+    }
 
-    return NextResponse.json(userInfo);
+    // return NextResponse.json(userInfo);
   } catch (error: any) {
     return NextResponse.json({
       message: error.message,

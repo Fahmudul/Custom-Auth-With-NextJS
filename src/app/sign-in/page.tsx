@@ -1,7 +1,33 @@
 "use client";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 const SignUp = () => {
+  const emailRef = React.useRef<HTMLInputElement>(null);
+  const router = useRouter();
+  const handleSign = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.target as HTMLFormElement;
+    const formData = new FormData(form);
+    const data = {
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
+    };
+    console.log(data);
+    // Send data to server
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/sign-in`,
+        data
+      );
+      if (response.data?.status === 200) {
+        router.push("/");
+      }
+    } catch (error: any) {
+      throw new Error(error);
+    }
+  };
   return (
     <div className="hero bg-base-200 min-h-screen">
       <div className="hero-content flex-col lg:flex-row-reverse">
@@ -14,7 +40,7 @@ const SignUp = () => {
           </p>
         </div>
         <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
-          <form className="card-body">
+          <form className="card-body" onSubmit={handleSign}>
             <div className="form-control">
               <label className="label">
                 <span className="label-text">Email</span>
@@ -23,6 +49,7 @@ const SignUp = () => {
                 type="email"
                 placeholder="email"
                 className="input input-bordered"
+                name="email"
                 required
               />
             </div>
@@ -34,6 +61,7 @@ const SignUp = () => {
                 type="password"
                 placeholder="password"
                 className="input input-bordered"
+                name="password"
                 required
               />
               <label className="label">
