@@ -42,7 +42,7 @@ export const SendEmail = async (
       errorMessage = error.toString();
     } else {
       console.log("Email sent: " + info.response);
-      toast.success("Email sent successfully");
+      console.log("Email sent successfully"); // React toast will only work in Client Side
     }
   });
   if (errorMessage) {
